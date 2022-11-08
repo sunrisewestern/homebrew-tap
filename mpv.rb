@@ -11,10 +11,10 @@ class Mpv < Formula
   depends_on "python@3.10" => :build
   depends_on xcode: :build
 
-  depends_on "deus0ww/tap/ffmpeg"
-  depends_on "deus0ww/tap/libass"
-  depends_on "deus0ww/tap/rubberband"
-  depends_on "deus0ww/tap/yt-dlp"
+  depends_on "ffmpeg"
+  depends_on "libass"
+  depends_on "rubberband"
+  depends_on "yt-dlp"
   depends_on "jpeg-turbo"
   depends_on "libarchive"
   depends_on "little-cms2"
@@ -36,8 +36,8 @@ class Mpv < Formula
   depends_on "sdl2" => :optional
 
   on_macos do
-    depends_on "deus0ww/tap/dockutil@2" => :recommended if MacOS.version <  :big_sur
-    depends_on "deus0ww/tap/dockutil@3" => :recommended if MacOS.version >= :big_sur
+    depends_on "dockutil" => :recommended if MacOS.version <  :big_sur
+    depends_on "sunrisewestern/tap/dockutil@3" => :recommended if MacOS.version >= :big_sur
     depends_on "coreutils" => :recommended
     depends_on "tag" => :recommended
     depends_on "trash" => :recommended
