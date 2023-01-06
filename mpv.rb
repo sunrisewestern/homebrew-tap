@@ -8,15 +8,15 @@ class Mpv < Formula
 
   depends_on "docutils" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@3.10" => :build
+  depends_on "python@3.11" => :build
   depends_on xcode: :build
   
   depends_on "ffmpeg@4"
   depends_on "libass"
-  depends_on "rubberband"
+  depends_on "libplacebo"
   depends_on "yt-dlp"
 
-   depends_on "jpeg-turbo"
+  depends_on "jpeg-turbo"
   depends_on "libarchive"
   depends_on "little-cms2"
   depends_on "luajit-openresty"
@@ -90,7 +90,7 @@ class Mpv < Formula
 
     inreplace "TOOLS/dylib-unhell.py", "libraries(lib, result)", "lib = lib.replace(\"@loader_path\", \"" + "#{HOMEBREW_PREFIX}/lib" + "\"); libraries(lib, result)"
 
-    python3 = "python3.10"
+    python3 = "python3.11"
     system python3, "bootstrap.py"
     system python3, "waf", "configure", *args
     system python3, "waf", "install"
