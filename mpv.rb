@@ -13,7 +13,7 @@ class Mpv < Formula
   
   depends_on "ffmpeg@4"
   depends_on "libass"
-  depends_on "sunrisewestern/tap/libplacebo"
+  depends_on "libplacebo"
   depends_on "yt-dlp"
 
   depends_on "jpeg-turbo"
