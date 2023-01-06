@@ -1,8 +1,8 @@
 class Mpv < Formula
   desc "Media player based on MPlayer and mplayer2"
   homepage "https://mpv.io"
-  url "https://github.com/mpv-player/mpv/archive/v0.34.1.tar.gz"
-  sha256 "32ded8c13b6398310fa27767378193dc1db6d78b006b70dbcbd3123a1445e746"
+  url "https://github.com/mpv-player/mpv/archive/v0.35.0.tar.gz"
+  sha256 "dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00"
   license :cannot_represent
   head "https://github.com/mpv-player/mpv.git", branch: "master"
 
@@ -11,7 +11,7 @@ class Mpv < Formula
   depends_on "python@3.10" => :build
   depends_on xcode: :build
 
-  depends_on "ffmpeg"
+  depends_on "ffmpeg@4"
   depends_on "libass"
   depends_on "rubberband"
   depends_on "yt-dlp"
