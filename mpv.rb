@@ -10,20 +10,21 @@ class Mpv < Formula
   depends_on "pkg-config" => :build
   depends_on "python@3.10" => :build
   depends_on xcode: :build
-
+  
   depends_on "ffmpeg@4"
   depends_on "libass"
   depends_on "rubberband"
   depends_on "yt-dlp"
-  depends_on "jpeg-turbo"
+
+   depends_on "jpeg-turbo"
   depends_on "libarchive"
   depends_on "little-cms2"
   depends_on "luajit-openresty"
   depends_on "mujs"
+  depends_on "rubberband"
   depends_on "uchardet"
   depends_on "vapoursynth"
   depends_on "zimg"
-  depends_on "libplacebo"
 
   depends_on "jack" => :optional
   depends_on "libaacs" => :optional
@@ -53,6 +54,8 @@ class Mpv < Formula
     ENV.append "CFLAGS",      opts
     ENV.append "OBJCFLAGS",   opts
     ENV.append "LDFLAGS",     opts + " -dead_strip"
+    ENV.append "PYTHONOPTIMIZE", 1
+
 
     # LANG is unset by default on macOS and causes issues when calling getlocale
     # or getdefaultlocale in docutils. Force the default c/posix locale since
@@ -67,7 +70,6 @@ class Mpv < Formula
       ENV["MACOS_SDK"] = sdk.path
       ENV["MACOS_SDK_VERSION"] = "#{sdk.version}.0"
     end
-
     # libarchive is keg-only
     ENV.prepend_path "PKG_CONFIG_PATH", Formula["libarchive"].opt_lib/"pkgconfig"
     # luajit-openresty is keg-only
