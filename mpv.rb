@@ -19,22 +19,17 @@ class Mpv < Formula
 
   depends_on "jpeg-turbo"
   depends_on "libarchive"
+  depends_on "libdvdnav"
   depends_on "little-cms2"
   depends_on "luajit"
   depends_on "mujs"
-  depends_on "rubberband"
   depends_on "uchardet"
-  depends_on "vapoursynth"
   depends_on "zimg"
 
-  depends_on "jack" => :optional
-  depends_on "libaacs" => :optional
   depends_on "libbluray" => :optional
-  depends_on "libcaca" => :optional
-  depends_on "libcdio" => :optional
-  depends_on "libdvdnav" => :optional
-  depends_on "libdvdread" => :optional
+  depends_on "rubberband" => :optional
   depends_on "sdl2" => :optional
+  depends_on "vapoursynth" => :optional
 
   on_macos do
     depends_on "dockutil" => :recommended if MacOS.version <  :big_sur
