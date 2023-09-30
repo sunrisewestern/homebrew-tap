@@ -1,12 +1,13 @@
 class Mpv < Formula
   desc "Media player based on MPlayer and mplayer2"
   homepage "https://mpv.io"
-  url "https://github.com/mpv-player/mpv/archive/v0.35.0.tar.gz"
-  sha256 "dc411c899a64548250c142bf1fa1aa7528f1b4398a24c86b816093999049ec00"
+  url "https://github.com/mpv-player/mpv/archive/refs/tags/v0.36.0.tar.gz"
+  sha256 "29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6"
   license :cannot_represent
   head "https://github.com/mpv-player/mpv.git", branch: "master"
 
   depends_on "docutils" => :build
+  depends_on "meson" => :build
   depends_on "pkg-config" => :build
   depends_on "python@3.11" => :build
   depends_on xcode: :build
@@ -19,7 +20,7 @@ class Mpv < Formula
   depends_on "jpeg-turbo"
   depends_on "libarchive"
   depends_on "little-cms2"
-  depends_on "luajit-openresty"
+  depends_on "luajit"
   depends_on "mujs"
   depends_on "rubberband"
   depends_on "uchardet"
