@@ -48,59 +48,74 @@ class Mpv < Formula
     depends_on "alsa-lib"
   end
 
-  fails_with gcc: "5" # ffmpeg is compiled with GCC
-
   def install
-    opts = "-Ofast -flto=thin " + (Hardware::CPU.arm? ? "-mcpu=native " : "-march=native -mtune=native ")
-    ENV.append "CFLAGS",      opts
-    ENV.append "OBJCFLAGS",   opts
-    ENV.append "LDFLAGS",     opts + " -dead_strip"
-    ENV.append "PYTHONOPTIMIZE", 1
-
-
     # LANG is unset by default on macOS and causes issues when calling getlocale
     # or getdefaultlocale in docutils. Force the default c/posix locale since
     # that's good enough for building the manpage.
     ENV["LC_ALL"] = "en_US.UTF-8"
     ENV["LANG"]   = "en_US.UTF-8"
 
-    # Avoid unreliable macOS SDK version detection
-    # See https://github.com/mpv-player/mpv/pull/8939
-    if OS.mac? && (MacOS.version >= :big_sur)
-      sdk = (MacOS.version == :big_sur) ? MacOS::Xcode.sdk : MacOS.sdk
-      ENV["MACOS_SDK"] = sdk.path
-      ENV["MACOS_SDK_VERSION"] = "#{sdk.version}.0"
-    end
+    # force meson find ninja from homebrew
+    ENV["NINJA"] = Formula["ninja"].opt_bin/"ninja"
+
     # libarchive is keg-only
     ENV.prepend_path "PKG_CONFIG_PATH", Formula["libarchive"].opt_lib/"pkgconfig"
-    # luajit-openresty is keg-only
-    ENV.prepend_path "PKG_CONFIG_PATH", Formula["luajit-openresty"].opt_lib/"pkgconfig"
 
     args = %W[
-      --prefix=#{prefix}
-      --confdir=#{etc}/mpv
+      -Db_lto=true
+      -Db_lto_mode=thin
+
+      -Dlibmpv=true
+      -Ddvdnav=enabled
+
+      --default-library=both
+      --sysconfdir=#{pkgetc}
       --datadir=#{pkgshare}
-      --docdir=#{doc}
       --mandir=#{man}
-      --zshdir=#{zsh_completion}
-
-      --disable-html-build
-      --enable-libmpv-shared
     ]
-    args << "--swift-flags=-O -wmo"
+    args << "-Dsdl2=enabled" if build.with? "sdl2"
+    
+    args << ("-Dc_args=" + (Hardware::CPU.arm? ? "-mcpu=native" : "-march=native -mtune=native") + " -Ofast")
+    args << "-Dswift-flags=-O -wmo"
 
-    inreplace "TOOLS/dylib-unhell.py", "libraries(lib, result)", "lib = lib.replace(\"@loader_path\", \"" + "#{HOMEBREW_PREFIX}/lib" + "\"); libraries(lib, result)"
+    system "meson", "setup", "build", *args, *std_meson_args
+    system "meson", "compile", "-C", "build", "--verbose"
+    system "meson", "install", "-C", "build"
 
-    python3 = "python3.11"
-    system python3, "bootstrap.py"
-    system python3, "waf", "configure", *args
-    system python3, "waf", "install"
-    system python3, "TOOLS/osxbundle.py", "build/mpv"
+    if OS.mac?
+      # `pkg-config --libs mpv` includes libarchive, but that package is
+      # keg-only so it needs to look for the pkgconfig file in libarchive's opt
+      # path.
+      libarchive = Formula["libarchive"].opt_prefix
+      inreplace lib/"pkgconfig/mpv.pc" do |s|
+        s.gsub!(/^Requires\.private:(.*)\blibarchive\b(.*?)(,.*)?$/,
+                "Requires.private:\\1#{libarchive}/lib/pkgconfig/libarchive.pc\\3")
+      end
+    end
+
+    bash_completion.install "etc/mpv.bash-completion" => "mpv"
+    zsh_completion.install "etc/_mpv.zsh" => "_mpv"
+
+    # Build, Fix, and Codesign App Bundle
+    system "python3.11", "TOOLS/osxbundle.py", "build/mpv", "--skip-deps"
+    bindir = "build/mpv.app/Contents/MacOS/"
+    rm   bindir + "mpv-bundle"
+    mv   bindir + "mpv", bindir + "mpv-bundle"
+    ln_s "mpv-bundle", bindir + "mpv"
+    system "codesign", "--deep", "-fs", "-", "build/mpv.app"
     prefix.install "build/mpv.app"
+
+    # Add to Dock
+    if build.with?("dockutil@2") || build.with?("dockutil@3")
+      system "dockutil", "--add", "#{prefix}/mpv.app", "--replacing", "mpv", "--allhomes"
+    end
   end
 
   test do
     system bin/"mpv", "--ao=null", "--vo=null", test_fixtures("test.wav")
     assert_match "vapoursynth", shell_output(bin/"mpv --vf=help")
+
+    # Make sure `pkg-config` can parse `mpv.pc` after the `inreplace`.
+    system "pkg-config", "mpv"
   end
 end
